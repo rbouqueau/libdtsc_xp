@@ -8,7 +8,12 @@
 #include <stdlib.h>
 #include <stdint.h> //for uint64_t
 #include <string.h> //for memcpy
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#include <WinSock2.h>
+#include <process.h>
+#else
 #include <arpa/inet.h> //for htonl
+#endif
 
 static inline char c2hex(char c) {
   if (c >= '0' && c <= '9') return c - '0';
@@ -602,6 +607,7 @@ std::string JSON::Value::toPacked() const {
 
 /// Packs and transfers over the network.
 /// If the object is a container type, this function will call itself recursively for all contents.
+#ifdef MIST_SOCKETS
 void JSON::Value::sendTo(Socket::Connection & socket) const {
   if (isInt() || isNull() || isBool()) {
     socket.SendNow("\001", 1);
@@ -680,6 +686,7 @@ void JSON::Value::sendTo(Socket::Connection & socket) const {
     return;
   }
 }//sendTo
+#endif
 
 /// Returns the packed size of this Value.
 unsigned int JSON::Value::packedSize() const {

@@ -3,6 +3,11 @@
 #include <cstdlib>
 #include <cstring>
 #include <iomanip>
+#include <sstream>
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#include <process.h>
+#include <WinSock2.h>
+#endif
 
 /// Retrieves a short in network order from the pointer p.
 static short btohs(char * p) {
@@ -643,7 +648,7 @@ namespace DTSC {
   }
 
   std::string Scan::toPrettyString(unsigned int indent) {
-    switch (getType()) {
+    switch ((unsigned char)getType()) {
       case DTSC_STR: {
           unsigned int strlen = p[1] * 256 * 256 * 256 + p[2] * 256 * 256 + p[3] * 256 + p[4];
           if (strlen > 250) {
@@ -1621,6 +1626,7 @@ namespace DTSC {
   }
 
   ///\brief Writes a read-only track to a socket
+#ifdef MIST_SOCKETS
   void readOnlyTrack::send(Socket::Connection & conn) {
     conn.SendNow(convertShort(getWritableIdentifier().size()), 2);
     conn.SendNow(getWritableIdentifier());
@@ -1680,6 +1686,7 @@ namespace DTSC {
     }
     conn.SendNow("\000\000\356", 3);//End this track Object
   }
+#endif
 
   ///\brief Writes a track to a pointer
   void Track::writeTo(char *& p) {
@@ -1749,6 +1756,7 @@ namespace DTSC {
   }
 
   ///\brief Writes a track to a socket
+#ifdef MIST_SOCKETS
   void Track::send(Socket::Connection & conn) {
     conn.SendNow(convertShort(getWritableIdentifier().size()), 2);
     conn.SendNow(getWritableIdentifier());
@@ -1814,6 +1822,7 @@ namespace DTSC {
     }
     conn.SendNow("\000\000\356", 3);//End this track Object
   }
+#endif
 
   ///\brief Determines the "packed" size of a read-only meta object
   unsigned int readOnlyMeta::getSendLen() {
@@ -1856,6 +1865,7 @@ namespace DTSC {
   }
 
   ///\brief Writes a read-only meta object to a socket
+#ifdef MIST_SOCKETS
   void readOnlyMeta::send(Socket::Connection & conn) {
     int dataLen = getSendLen() - 8; //strip 8 bytes header
     conn.SendNow(DTSC::Magic_Header, 4);
@@ -1885,6 +1895,7 @@ namespace DTSC {
     conn.SendNow(convertLongLong(moreheader), 8);
     conn.SendNow("\000\000\356", 3);//End global object
   }
+#endif
 
   ///\brief Determines the "packed" size of a meta object
   unsigned int Meta::getSendLen() {
@@ -1927,6 +1938,7 @@ namespace DTSC {
   }
 
   ///\brief Writes a meta object to a socket
+#ifdef MIST_SOCKETS
   void Meta::send(Socket::Connection & conn) {
     int dataLen = getSendLen() - 8; //strip 8 bytes header
     conn.SendNow(DTSC::Magic_Header, 4);
@@ -1956,6 +1968,7 @@ namespace DTSC {
     conn.SendNow(convertLongLong(moreheader), 8);
     conn.SendNow("\000\000\356", 3);//End global object
   }
+#endif
 
   ///\brief Converts a read-only track to a JSON::Value
   JSON::Value readOnlyTrack::toJSON() {

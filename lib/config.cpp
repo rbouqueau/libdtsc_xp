@@ -3,9 +3,11 @@
 
 #include "config.h"
 #include "defines.h"
+#ifdef MIST_SOCKETS
 #include "timing.h"
 #include "tinythread.h"
 #include "stream.h"
+#endif
 #include <string.h>
 #include <signal.h>
 
@@ -16,7 +18,9 @@
 #if defined(__FreeBSD__) || defined(__APPLE__) || defined(__MACH__)
 #include <sys/wait.h>
 #else
+#ifdef __CYGWIN__
 #include <wait.h>
+#endif
 #endif
 #if defined(__APPLE__)
 #include <mach-o/dyld.h>
@@ -25,18 +29,22 @@
 #include <iostream>
 #include <signal.h>
 #include <sys/types.h>
-#include <unistd.h>
 #include <fcntl.h>
+#if !defined(_WIN32) || defined(__CYGWIN__)
+#include <unistd.h>
 #include <pwd.h>
 #include <getopt.h>
+#include <dirent.h> //for getMyExec
+#endif
 #include <stdlib.h>
 #include <fstream>
-#include <dirent.h> //for getMyExec
 
 bool Util::Config::is_active = false;
-unsigned int Util::Config::printDebugLevel = DEBUG;//
+#define DEBUG 4 //FIXME
+unsigned int Util::Config::printDebugLevel = DEBUG;
 std::string Util::Config::libver = PACKAGE_VERSION;
 
+#if 0//FIXME
 Util::Config::Config() {
   //global options here
   vals["debug"]["long"] = "Debug";
@@ -646,3 +654,4 @@ void Util::Daemonize(bool notClose) {
     DEBUG_MSG(DLVL_ERROR, "Failed to daemonize: %s", strerror(errno));
   }
 }
+#endif

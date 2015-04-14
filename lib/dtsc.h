@@ -10,8 +10,10 @@
 #include <set>
 #include <stdio.h> //for FILE
 #include "json.h"
+#ifdef MIST_SOCKETS
 #include "socket.h"
 #include "timing.h"
+#endif
 
 #define DTSC_INT 0x01
 #define DTSC_STR 0x02
@@ -250,7 +252,9 @@ namespace DTSC {
       readOnlyTrack();
       readOnlyTrack(JSON::Value & trackRef);
       int getSendLen();
+#ifdef MIST_SOCKETS
       void send(Socket::Connection & conn);
+#endif
       void writeTo(char *& p);
       std::string getIdentifier();
       std::string getWritableIdentifier();
@@ -291,12 +295,14 @@ namespace DTSC {
       Track(JSON::Value & trackRef);
       Track(Scan & trackRef);
       inline operator bool() const {
-        return parts.size();
+        return parts.size() != 0;
       }
       void update(DTSC::Packet & pack);
       void update(JSON::Value & pack);
       int getSendLen();
-      void send(Socket::Connection & conn);
+#ifdef MIST_SOCKETS
+	  void send(Socket::Connection & conn);
+#endif
       void writeTo(char *& p);
       JSON::Value toJSON();
       std::deque<Fragment> fragments;
@@ -322,7 +328,9 @@ namespace DTSC {
       long long int moreheader;
       long long int bufferWindow;
       unsigned int getSendLen();
-      void send(Socket::Connection & conn);
+#ifdef MIST_SOCKETS
+	  void send(Socket::Connection & conn);
+#endif
       void writeTo(char * p);
       JSON::Value toJSON();
       bool isFixed();
@@ -340,7 +348,9 @@ namespace DTSC {
       void update(DTSC::Packet & pack);
       void update(JSON::Value & pack);
       unsigned int getSendLen();
-      void send(Socket::Connection & conn);
+#ifdef MIST_SOCKETS
+	  void send(Socket::Connection & conn);
+#endif
       void writeTo(char * p);
       JSON::Value toJSON();
       void reset();
@@ -412,7 +422,9 @@ namespace DTSC {
       bool hasVideo();
       bool hasAudio();
       bool parsePacket(std::string & buffer);
-      bool parsePacket(Socket::Buffer & buffer);
+#ifdef MIST_SOCKETS
+	  bool parsePacket(Socket::Buffer & buffer);
+#endif
       std::string & outPacket();
       std::string & outPacket(livePos num);
       std::string & outHeader();
@@ -425,8 +437,10 @@ namespace DTSC {
       bool isNewest(DTSC::livePos & pos, std::set<int> & allowedTracks);
       DTSC::livePos getNext(DTSC::livePos & pos, std::set<int> & allowedTracks);
       void endStream();
-      void waitForMeta(Socket::Connection & sourceSocket, bool closeOnError = true);
-      void waitForPause(Socket::Connection & sourceSocket);
+#ifdef MIST_SOCKETS
+	  void waitForMeta(Socket::Connection & sourceSocket, bool closeOnError = true);
+	  void waitForPause(Socket::Connection & sourceSocket);
+#endif
     protected:
       void cutOneBuffer();
       void resetStream();
@@ -441,4 +455,3 @@ namespace DTSC {
       virtual void deletionCallback(livePos deleting);
   };
 }
-

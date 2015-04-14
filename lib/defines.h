@@ -16,7 +16,9 @@
 #if DEBUG > -1
 
 #include <stdio.h>
+#if defined(_WIN32) && !defined(__CYGWIN__)
 #include <unistd.h>
+#endif
 #include "config.h"
 static const char * DBG_LVL_LIST[] = {"NONE", "FAIL", "ERROR", "WARN", "INFO", "MEDIUM", "HIGH", "VERYHIGH", "EXTREME", "INSANE", "DONTEVEN"};
 

@@ -5,7 +5,14 @@
 #include "defines.h"
 #include <stdlib.h>
 #include <string.h> //for memcmp
+#if defined(_WIN32) && !defined(__CYGWIN__)
+#include <process.h>
+#include <WinSock2.h>
+#else
 #include <arpa/inet.h> //for htonl/ntohl
+#endif
+#include <io.h>
+
 char DTSC::Magic_Header[] = "DTSC";
 char DTSC::Magic_Packet[] = "DTPD";
 char DTSC::Magic_Packet2[] = "DTP2";
@@ -113,6 +120,7 @@ bool DTSC::Stream::parsePacket(std::string & buffer) {
 /// Returns true if successful, removing the parsed part from the buffer.
 /// Returns false if invalid or not enough data is in the buffer.
 /// \arg buffer The Socket::Buffer to attempt to parse.
+#ifdef MIST_SOCKETS
 bool DTSC::Stream::parsePacket(Socket::Buffer & buffer) {
   uint32_t len;
   static bool syncing = false;
@@ -166,6 +174,7 @@ bool DTSC::Stream::parsePacket(Socket::Buffer & buffer) {
   }
   return false;
 }
+#endif
 
 /// Adds a keyframe packet to all tracks, so the stream can be fully played.
 void DTSC::Stream::endStream() {
@@ -185,6 +194,7 @@ void DTSC::Stream::endStream() {
 /// Blocks until either the stream has metadata available or the sourceSocket errors.
 /// This function is intended to be run before any commands are sent and thus will not throw away anything important.
 /// It will time out after 3 seconds, disconnecting the sourceSocket.
+#ifdef MIST_SOCKETS
 void DTSC::Stream::waitForMeta(Socket::Connection & sourceSocket, bool closeOnError){
   bool wasBlocking = sourceSocket.isBlocking();
   sourceSocket.setBlocking(false);
@@ -216,10 +226,12 @@ void DTSC::Stream::waitForMeta(Socket::Connection & sourceSocket, bool closeOnEr
     DEBUG_MSG(DLVL_DEVEL, "Timing out while waiting for metadata");
   }
 }
+#endif
 
 /// Blocks until either the stream encounters a pause mark or the sourceSocket errors.
 /// This function is intended to be run after the 'q' command is sent, throwing away superfluous packets.
 /// It will time out after 5 seconds, disconnecting the sourceSocket.
+#ifdef MIST_SOCKETS
 void DTSC::Stream::waitForPause(Socket::Connection & sourceSocket) {
   bool wasBlocking = sourceSocket.isBlocking();
   sourceSocket.setBlocking(false);
@@ -251,6 +263,7 @@ void DTSC::Stream::waitForPause(Socket::Connection & sourceSocket) {
     DEBUG_MSG(DLVL_DEVEL, "Timing out while waiting for pause break");
   }
 }
+#endif
 
 /// Resets the stream by clearing the buffers and keyframes, making sure to call the deletionCallback first.
 void DTSC::Stream::resetStream() {

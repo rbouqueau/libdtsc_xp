@@ -35,11 +35,13 @@ namespace Util {
       long long int getInteger(std::string optname);
       bool getBool(std::string optname);
       void activate();
-      int threadServer(Socket::Server & server_socket, int (*callback)(Socket::Connection & S));
-      int forkServer(Socket::Server & server_socket, int (*callback)(Socket::Connection & S));
-      int serveThreadedSocket(int (*callback)(Socket::Connection & S));
-      int serveForkedSocket(int (*callback)(Socket::Connection & S));
-      int servePlainSocket(int (*callback)(Socket::Connection & S));
+#ifdef MIST_SOCKETS
+	  int threadServer(Socket::Server & server_socket, int (*callback)(Socket::Connection & S));
+	  int forkServer(Socket::Server & server_socket, int (*callback)(Socket::Connection & S));
+	  int serveThreadedSocket(int (*callback)(Socket::Connection & S));
+	  int serveForkedSocket(int (*callback)(Socket::Connection & S));
+	  int servePlainSocket(int (*callback)(Socket::Connection & S));
+#endif
       void addBasicConnectorOptions(JSON::Value & capabilities);
       void addConnectorOptions(int port, JSON::Value & capabilities);
   };
