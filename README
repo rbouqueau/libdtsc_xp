@@ -24,6 +24,9 @@ To install using default options, simply run:
 
 Dependencies:
   openssl
+  
+Cygwin: to build both the import lib and the dll (now fixed on the official repo with CMake)
+g++ -shared -o libmist.dll -Wl,--out-implib=libmist.lib -Wl,--export-all-symbols -Wl,--enable-auto-import lib/dtscmeta.o lib/timing.o lib/ftp.o lib/procs.o lib/flv_tag.o lib/http_parser.o lib/vorbis.o lib/mp4_adobe.o lib/rtmpchunks.o lib/ogg.o lib/mp4_generic.o lib/mp4.o lib/auth.o lib/dtsc.o lib/ts_packet.o lib/mp4_ms.o lib/config.o lib/converter.o lib/json.o lib/nal.o lib/filesystem.o lib/stream.o lib/socket.o lib/theora.o lib/bitstream.o lib/amf.o lib/tinythread.o lib/shared_memory.o lib/base64.o -lcrypto -lssl -lpthread -lrt
 
 The makefile will listen to the following variables:
   DEBUG            Sets the debug message level. 4 is the default (and recommended setting for development), 0 is quiet, 10 is insanely high.
