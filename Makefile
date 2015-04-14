@@ -10,12 +10,11 @@ ifeq ($(PACKAGE_VERSION),Unknown)
   $(warning Version is unknown - consider creating a VERSION file or fixing your git setup.)
 endif
 
-CPPFLAGS = -Wall -g -O2 -fPIC
+CPPFLAGS = -Wall -std=gnu++11 -g -O2 -fPIC
 override CPPFLAGS += -funsigned-char -DDEBUG="$(DEBUG)" -DPACKAGE_VERSION="\"$(PACKAGE_VERSION)\""
 
-LDLIBS = -lcrypto
 THREADLIB = -lpthread -lrt
-LDLIBS = -lcrypto $(THREADLIB)
+LDLIBS = -lcrypto -lssl $(THREADLIB)
 
 
 .DEFAULT_GOAL := all
@@ -33,7 +32,7 @@ objects := $(patsubst %.cpp,%.o,$(wildcard lib/*.cpp))
 
 
 libmist.so: $(objects)
-	$(CXX) -shared -o $@ $(LDLIBS) $^
+	$(CXX) -shared -o $@ $^ $(LDLIBS)
 
 libmist.a: $(objects)
 	$(AR) -rcs $@ $^
